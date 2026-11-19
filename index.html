@@ -1,1 +1,708 @@
-# tttt
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Food Scanner AI — Community Nutrition & Eco-Health Guide</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts: Plus Jakarta Sans & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- TensorFlow.js & Teachable Machine Image Library -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Plus Jakarta Sans', 'sans-serif'],
+          },
+          colors: {
+            emerald: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              200: '#a7f3d0',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+              800: '#065f46',
+              900: '#064e3b',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #f8faf9;
+      color: #0f172a;
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(16, 185, 129, 0.15);
+    }
+    .scanner-line {
+      position: absolute;
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, #10b981, transparent);
+      box-shadow: 0 0 12px #10b981;
+      animation: scan 2.5s infinite linear;
+    }
+    @keyframes scan {
+      0% { top: 0%; opacity: 0; }
+      15% { opacity: 1; }
+      85% { opacity: 1; }
+      100% { top: 100%; opacity: 0; }
+    }
+  </style>
+</head>
+<body class="antialiased selection:bg-emerald-200 selection:text-emerald-900">
+
+  <!-- Top Navigation -->
+  <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-emerald-100">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-emerald-600 flex items-center justify-center text-white shadow-sm shadow-emerald-600/20">
+          <i data-lucide="leaf" class="w-5 h-5"></i>
+        </div>
+        <span class="font-display font-bold text-xl tracking-tight text-slate-900">
+          Food Scanner <span class="text-emerald-600">AI</span>
+        </span>
+      </div>
+
+      <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
+        <a href="#scanner" class="hover:text-emerald-600 transition-colors">AI Scanner</a>
+        <a href="#awareness" class="hover:text-emerald-600 transition-colors">Health Awareness</a>
+        <a href="#guide" class="hover:text-emerald-600 transition-colors">Nutrition & Eco Guide</a>
+      </nav>
+
+      <a href="#scanner" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium transition-all shadow-sm">
+        <i data-lucide="scan-line" class="w-4 h-4"></i>
+        <span>Scan Food</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="relative overflow-hidden pt-10 pb-14 md:pt-16 md:pb-20 bg-gradient-to-b from-emerald-50/80 via-white to-transparent">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-100/80 border border-emerald-200 text-emerald-800 text-xs font-semibold tracking-wide uppercase mb-6">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        Community Wellness & Eco-Nutrition Initiative
+      </div>
+      
+      <h1 class="font-display text-4xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight max-w-3xl mx-auto leading-[1.12]">
+        Eat Smart, Live Green with <span class="text-emerald-600">Real-Time Food AI</span>
+      </h1>
+      
+      <p class="mt-5 text-base sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
+        Instantly distinguish nutrient-dense whole foods from ultra-processed options using your camera or a photo. Empowering healthier families and sustainable community habits.
+      </p>
+
+      <div class="mt-8 flex flex-wrap items-center justify-center gap-4 text-sm text-slate-500">
+        <div class="flex items-center gap-1.5">
+          <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i>
+          <span>100% Private (Runs Locally in Browser)</span>
+        </div>
+        <span class="hidden sm:inline text-slate-300">•</span>
+        <div class="flex items-center gap-1.5">
+          <i data-lucide="zap" class="w-4 h-4 text-emerald-600"></i>
+          <span>Instant Classification</span>
+        </div>
+        <span class="hidden sm:inline text-slate-300">•</span>
+        <div class="flex items-center gap-1.5">
+          <i data-lucide="sprout" class="w-4 h-4 text-emerald-600"></i>
+          <span>Eco-Conscious Food Tips</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main AI Scanner Section -->
+  <section id="scanner" class="py-6 sm:py-10">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <!-- Model Status Banner -->
+      <div id="model-status" class="mb-6 px-4 py-3 rounded-2xl bg-amber-50 border border-amber-200 text-amber-800 text-sm flex items-center justify-between gap-3">
+        <div class="flex items-center gap-2.5">
+          <i data-lucide="loader-2" class="w-4 h-4 animate-spin text-amber-600 shrink-0"></i>
+          <span id="model-status-text">Initializing Teachable Machine AI nutrition model...</span>
+        </div>
+        <span class="text-xs font-mono bg-white/80 px-2 py-0.5 rounded border border-amber-200/60">TF.js</span>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        <!-- Left Column: Input Viewport & Controls -->
+        <div class="lg:col-span-7 glass-card rounded-3xl p-5 sm:p-7 shadow-xl shadow-emerald-900/5">
+          
+          <!-- Mode Switcher Tabs -->
+          <div class="grid grid-cols-2 gap-2 p-1.5 bg-slate-100 rounded-2xl mb-6">
+            <button id="tab-webcam" onclick="switchMode('webcam')" class="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-semibold transition-all bg-white text-emerald-700 shadow-sm">
+              <i data-lucide="camera" class="w-4 h-4"></i>
+              <span>Live Webcam</span>
+            </button>
+            <button id="tab-upload" onclick="switchMode('upload')" class="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-semibold transition-all text-slate-600 hover:text-slate-900">
+              <i data-lucide="image-plus" class="w-4 h-4"></i>
+              <span>Upload Photo</span>
+            </button>
+          </div>
+
+          <!-- Visual Viewport Container -->
+          <div class="relative aspect-square sm:aspect-[4/3] w-full rounded-2xl bg-slate-900 overflow-hidden border-2 border-emerald-100 flex items-center justify-center">
+            
+            <!-- Placeholder State -->
+            <div id="placeholder-view" class="text-center p-6 max-w-xs">
+              <div class="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="utensils" class="w-8 h-8"></i>
+              </div>
+              <h3 class="text-white font-display font-semibold text-lg">Ready to Scan Food</h3>
+              <p class="text-slate-400 text-sm mt-1">Start your camera or upload a meal photo to check its nutritional profile.</p>
+            </div>
+
+            <!-- Webcam Canvas Wrapper -->
+            <div id="webcam-wrapper" class="hidden w-full h-full relative flex items-center justify-center">
+              <div id="webcam-container" class="w-full h-full [&>canvas]:w-full [&>canvas]:h-full [&>canvas]:object-cover"></div>
+              <div class="scanner-line"></div>
+              <div class="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-white text-xs font-medium flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
+                LIVE SCANNING
+              </div>
+            </div>
+
+            <!-- Uploaded Image Wrapper -->
+            <div id="upload-wrapper" class="hidden w-full h-full relative flex items-center justify-center bg-slate-950">
+              <img id="preview-image" src="" alt="Uploaded food preview" class="max-w-full max-h-full object-contain" />
+            </div>
+          </div>
+
+          <!-- Action Controls -->
+          <div class="mt-6">
+            <!-- Webcam Controls -->
+            <div id="webcam-controls" class="flex flex-wrap gap-3">
+              <button id="btn-start-cam" onclick="startWebcam()" disabled class="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-semibold text-sm transition-all shadow-sm">
+                <i data-lucide="play" class="w-4 h-4"></i>
+                <span>Start Camera Scanner</span>
+              </button>
+              <button id="btn-stop-cam" onclick="stopWebcam()" class="hidden flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-semibold text-sm transition-all shadow-sm">
+                <i data-lucide="square" class="w-4 h-4"></i>
+                <span>Stop Camera</span>
+              </button>
+            </div>
+
+            <!-- Upload Controls -->
+            <div id="upload-controls" class="hidden">
+              <label for="image-upload" class="cursor-pointer w-full flex flex-col items-center justify-center px-4 py-4 rounded-xl border-2 border-dashed border-emerald-300 bg-emerald-50/50 hover:bg-emerald-50 transition-colors text-center">
+                <div class="flex items-center gap-2 text-emerald-700 font-semibold text-sm">
+                  <i data-lucide="upload-cloud" class="w-5 h-5"></i>
+                  <span>Click to choose a food image (JPG, PNG, WebP)</span>
+                </div>
+                <span class="text-xs text-slate-500 mt-1">Best results with clear, well-lit photos of a single meal or snack</span>
+                <input id="image-upload" type="file" accept="image/*" class="hidden" onchange="handleImageUpload(event)" />
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Real-Time Prediction & Health Feedback -->
+        <div class="lg:col-span-5 space-y-6">
+          
+          <!-- Primary Verdict Card -->
+          <div id="verdict-card" class="glass-card rounded-3xl p-6 shadow-xl shadow-emerald-900/5 transition-all duration-300">
+            <div class="flex items-center justify-between mb-4">
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-400">AI Assessment</span>
+              <span id="confidence-badge" class="px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-600">
+                Waiting for input
+              </span>
+            </div>
+
+            <div id="verdict-content" class="py-2">
+              <div class="flex items-center gap-3.5">
+                <div id="verdict-icon-box" class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center shrink-0 transition-colors">
+                  <i data-lucide="help-circle" class="w-6 h-6"></i>
+                </div>
+                <div>
+                  <h2 id="verdict-title" class="font-display text-2xl font-bold text-slate-800">No Food Scanned</h2>
+                  <p id="verdict-subtitle" class="text-sm text-slate-500">Activate camera or upload a photo to begin</p>
+                </div>
+              </div>
+
+              <!-- Dynamic Health & Eco Tip Box -->
+              <div id="health-tip-box" class="mt-5 p-4 rounded-2xl bg-slate-50 border border-slate-200/70 text-sm text-slate-600 leading-relaxed">
+                Point your camera at fruits, vegetables, home-cooked meals, or packaged snacks to see real-time nutritional insights.
+              </div>
+            </div>
+
+            <!-- Probability Breakdown Bars -->
+            <div class="mt-6 pt-5 border-t border-slate-100">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3.5">Confidence Breakdown</h3>
+              <div id="label-container" class="space-y-3.5">
+                <div class="text-sm text-slate-400 italic">Model predictions will appear here...</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Scanning Tips -->
+          <div class="rounded-2xl bg-emerald-900 text-emerald-50 p-5 shadow-md">
+            <div class="flex items-center gap-2 font-display font-semibold text-white text-sm mb-2">
+              <i data-lucide="sparkles" class="w-4 h-4 text-emerald-400"></i>
+              <span>Tips for Best Accuracy</span>
+            </div>
+            <ul class="text-xs text-emerald-100/90 space-y-1.5 list-disc list-inside">
+              <li>Place the food item in the center of the frame under bright lighting.</li>
+              <li>Avoid cluttered backgrounds or multiple conflicting dishes at once.</li>
+              <li>Hold steady for 1–2 seconds for confidence levels to stabilize.</li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Health Awareness & Nutrition Section -->
+  <section id="awareness" class="py-16 bg-white border-t border-emerald-100/80 mt-10">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-2xl mx-auto mb-12">
+        <span class="text-emerald-600 font-semibold text-sm uppercase tracking-wider">Health Awareness</span>
+        <h2 class="font-display text-3xl sm:text-4xl font-bold text-slate-900 mt-2">
+          Why Everyday Food Choices Matter
+        </h2>
+        <p class="mt-3 text-slate-600 text-sm sm:text-base">
+          Understanding the difference between whole, minimally processed foods and ultra-processed items protects both personal longevity and community sustainability.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Card 1 -->
+        <div class="p-6 rounded-3xl bg-emerald-50/60 border border-emerald-100 hover:border-emerald-300 transition-colors">
+          <div class="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center mb-5 shadow-sm">
+            <i data-lucide="heart-pulse" class="w-6 h-6"></i>
+          </div>
+          <h3 class="font-display text-xl font-bold text-slate-900 mb-2">Sustained Energy & Immunity</h3>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            Whole foods—such as leafy greens, fresh fruits, legumes, and whole grains—deliver essential fiber, antioxidants, and micronutrients that stabilize blood sugar and strengthen immune defense.
+          </p>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="p-6 rounded-3xl bg-amber-50/60 border border-amber-100 hover:border-amber-300 transition-colors">
+          <div class="w-12 h-12 rounded-2xl bg-amber-500 text-white flex items-center justify-center mb-5 shadow-sm">
+            <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+          </div>
+          <h3 class="font-display text-xl font-bold text-slate-900 mb-2">Hidden Risks of Junk Food</h3>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            Ultra-processed snacks, sugary drinks, and deep-fried fast foods contain excess sodium, trans fats, and refined sugars linked to fatigue, inflammation, and chronic metabolic conditions.
+          </p>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="p-6 rounded-3xl bg-teal-50/60 border border-teal-100 hover:border-teal-300 transition-colors">
+          <div class="w-12 h-12 rounded-2xl bg-teal-600 text-white flex items-center justify-center mb-5 shadow-sm">
+            <i data-lucide="globe-2" class="w-6 h-6"></i>
+          </div>
+          <h3 class="font-display text-xl font-bold text-slate-900 mb-2">Healthy Body, Greener Planet</h3>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            Choosing fresh, locally grown produce reduces single-use plastic wrappers and industrial food processing waste—creating a cleaner neighborhood ecosystem while nourishing your body.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Community Eco-Nutrition Comparison Guide -->
+  <section id="guide" class="py-16 bg-[#f8faf9] border-t border-emerald-100">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="mb-10">
+        <span class="text-emerald-600 font-semibold text-sm uppercase tracking-wider">Community Eco-Guide</span>
+        <h2 class="font-display text-3xl font-bold text-slate-900 mt-1">Smart Swap Reference</h2>
+        <p class="text-slate-600 text-sm mt-2">Simple daily replacements to upgrade your nutrition and cut down on packaging waste.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Healthy Column -->
+        <div class="bg-white rounded-3xl p-6 sm:p-8 border border-emerald-200 shadow-sm">
+          <div class="flex items-center gap-3 mb-5">
+            <span class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center">
+              <i data-lucide="check-circle-2" class="w-6 h-6"></i>
+            </span>
+            <div>
+              <h3 class="font-display font-bold text-lg text-slate-900">Go For: Whole & Healthy</h3>
+              <p class="text-xs text-emerald-700 font-medium">Nutrient-dense & low environmental footprint</p>
+            </div>
+          </div>
+          <ul class="space-y-3.5 text-sm text-slate-700">
+            <li class="flex items-start gap-2.5">
+              <i data-lucide="check" class="w-4 h-4 text-emerald-600 mt-0.5 shrink-0"></i>
+              <span><strong>Fresh Seasonal Fruits:</strong> Bananas, mangoes, papayas, apples, and citrus packed with natural vitamins and fiber.</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <i data-lucide="check" class="w-4 h-4 text-emerald-600 mt-0.5 shrink-0"></i>
+              <span><strong>Leafy Greens & Vegetables:</strong> Malunggay, spinach, broccoli, carrots, and squash for daily micronutrient balance.</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <i data-lucide="check" class="w-4 h-4 text-emerald-600 mt-0.5 shrink-0"></i>
+              <span><strong>Clean Proteins & Whole Grains:</strong> Steamed fish, eggs, beans, nuts, oats, and brown rice for steady fuel.</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <i data-lucide="check" class="w-4 h-4 text-emerald-600 mt-0.5 shrink-0"></i>
+              <span><strong>Natural Hydration:</strong> Water, fresh coconut water, or unsweetened herbal teas in reusable bottles.</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Unhealthy Column -->
+        <div class="bg-white rounded-3xl p-6 sm:p-8 border border-rose-200 shadow-sm">
+          <div class="flex items-center gap-3 mb-5">
+            <span class="w-10 h-10 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center">
+              <i data-lucide="x-circle" class="w-6 h-6"></i>
+            </span>
+            <div>
+              <h3 class="font-display font-bold text-lg text-slate-900">Limit: Ultra-Processed & Unhealthy</h3>
+              <p class="text-xs text-rose-700 font-medium">Calorie-dense, nutrient-poor & high plastic waste</p>
+            </div>
+          </div>
+          <ul class="space-y-3.5 text-sm text-slate-700">
+            <li class="flex items-start gap-2.5">
+              <i data-lucide="x" class="w-4 h-4 text-rose-500 mt-0.5 shrink-0"></i>
+              <span><strong>Sugary Sodas & Energy Drinks:</strong> Cause rapid insulin spikes, energy crashes, and excess plastic bottle waste.</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <i data-lucide="x" class="w-4 h-4 text-rose-500 mt-0.5 shrink-0"></i>
+              <span><strong>Packaged Chips & Fried Snacks:</strong> High in sodium, artificial flavorings, and oxidized oils.</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <i data-lucide="x" class="w-4 h-4 text-rose-500 mt-0.5 shrink-0"></i>
+              <span><strong>Refined Pastries & Candies:</strong> Loaded with added sugars and refined flour with minimal nutritional value.</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <i data-lucide="x" class="w-4 h-4 text-rose-500 mt-0.5 shrink-0"></i>
+              <span><strong>Heavy Fast-Food Combos:</strong> High in saturated fats and preservatives that strain cardiovascular health.</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-emerald-100 py-8">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-slate-500">
+      <div class="flex items-center gap-2">
+        <i data-lucide="leaf" class="w-4 h-4 text-emerald-600"></i>
+        <span class="font-display font-semibold text-slate-800">Food Scanner AI</span>
+        <span>— Community Eco-Health Guide</span>
+      </div>
+      <p class="text-xs text-slate-400 text-center sm:text-right">
+        Powered by Google Teachable Machine & TensorFlow.js • For educational & wellness awareness purposes.
+      </p>
+    </div>
+  </footer>
+
+  <!-- Application Logic -->
+  <script>
+    // Initialize Lucide Icons
+    lucide.createIcons();
+
+    // Teachable Machine Model URL
+    const MODEL_URL = "https://teachablemachine.withgoogle.com/models/wpECwXw6dm/";
+
+    let model = null;
+    let webcam = null;
+    let maxPredictions = 0;
+    let isWebcamRunning = false;
+    let animationFrameId = null;
+    let currentMode = 'webcam';
+
+    // DOM Elements
+    const statusBanner = document.getElementById('model-status');
+    const statusText = document.getElementById('model-status-text');
+    const btnStartCam = document.getElementById('btn-start-cam');
+    const btnStopCam = document.getElementById('btn-stop-cam');
+    const placeholderView = document.getElementById('placeholder-view');
+    const webcamWrapper = document.getElementById('webcam-wrapper');
+    const uploadWrapper = document.getElementById('upload-wrapper');
+    const previewImage = document.getElementById('preview-image');
+    const labelContainer = document.getElementById('label-container');
+
+    // Verdict Elements
+    const verdictCard = document.getElementById('verdict-card');
+    const verdictIconBox = document.getElementById('verdict-icon-box');
+    const verdictTitle = document.getElementById('verdict-title');
+    const verdictSubtitle = document.getElementById('verdict-subtitle');
+    const confidenceBadge = document.getElementById('confidence-badge');
+    const healthTipBox = document.getElementById('health-tip-box');
+
+    // Load the Teachable Machine Model on Page Load
+    async function initModel() {
+      try {
+        const modelURL = MODEL_URL + "model.json";
+        const metadataURL = MODEL_URL + "metadata.json";
+
+        model = await tmImage.load(modelURL, metadataURL);
+        maxPredictions = model.getTotalClasses();
+
+        // Update UI Status to Ready
+        statusBanner.className = "mb-6 px-4 py-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm flex items-center justify-between gap-3";
+        statusBanner.innerHTML = `
+          <div class="flex items-center gap-2.5">
+            <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600 shrink-0"></i>
+            <span><strong>AI Model Ready!</strong> Choose Live Webcam or Upload Photo to scan food.</span>
+          </div>
+          <span class="text-xs font-mono bg-white px-2 py-0.5 rounded border border-emerald-200 text-emerald-700">${maxPredictions} Classes Loaded</span>
+        `;
+        lucide.createIcons();
+
+        btnStartCam.disabled = false;
+        setupPredictionBars();
+      } catch (error) {
+        console.error("Failed to load Teachable Machine model:", error);
+        statusBanner.className = "mb-6 px-4 py-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-sm flex items-center gap-2.5";
+        statusBanner.innerHTML = `
+          <i data-lucide="alert-circle" class="w-4 h-4 text-rose-600 shrink-0"></i>
+          <span>Error loading AI model. Please check your internet connection and refresh the page.</span>
+        `;
+        lucide.createIcons();
+      }
+    }
+
+    // Create empty probability bars matching model classes
+    function setupPredictionBars() {
+      if (!model) return;
+      const labels = model.getClassLabels();
+      labelContainer.innerHTML = '';
+
+      labels.forEach((label, index) => {
+        const isUnhealthy = label.toLowerCase().includes('unhealthy') || label.toLowerCase().includes('junk');
+        const barColor = isUnhealthy ? 'bg-rose-500' : 'bg-emerald-500';
+
+        const row = document.createElement('div');
+        row.innerHTML = `
+          <div class="flex justify-between text-xs font-semibold mb-1">
+            <span class="text-slate-700 capitalize">${label}</span>
+            <span id="prob-text-${index}" class="text-slate-500 font-mono">0%</span>
+          </div>
+          <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+            <div id="prob-bar-${index}" class="h-full ${barColor} transition-all duration-200 rounded-full" style="width: 0%"></div>
+          </div>
+        `;
+        labelContainer.appendChild(row);
+      });
+    }
+
+    // Switch between Webcam and Photo Upload modes
+    function switchMode(mode) {
+      currentMode = mode;
+      const tabWebcam = document.getElementById('tab-webcam');
+      const tabUpload = document.getElementById('tab-upload');
+      const webcamControls = document.getElementById('webcam-controls');
+      const uploadControls = document.getElementById('upload-controls');
+
+      if (mode === 'webcam') {
+        tabWebcam.className = "flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-semibold transition-all bg-white text-emerald-700 shadow-sm";
+        tabUpload.className = "flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-semibold transition-all text-slate-600 hover:text-slate-900";
+        
+        webcamControls.classList.remove('hidden');
+        uploadControls.classList.add('hidden');
+        uploadWrapper.classList.add('hidden');
+
+        if (isWebcamRunning) {
+          placeholderView.classList.add('hidden');
+          webcamWrapper.classList.remove('hidden');
+        } else {
+          placeholderView.classList.remove('hidden');
+          webcamWrapper.classList.add('hidden');
+        }
+      } else {
+        // Stop webcam if running when switching to upload
+        if (isWebcamRunning) {
+          stopWebcam();
+        }
+
+        tabUpload.className = "flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-semibold transition-all bg-white text-emerald-700 shadow-sm";
+        tabWebcam.className = "flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-semibold transition-all text-slate-600 hover:text-slate-900";
+
+        webcamControls.classList.add('hidden');
+        uploadControls.classList.remove('hidden');
+        webcamWrapper.classList.add('hidden');
+
+        if (previewImage.src && previewImage.src !== window.location.href) {
+          placeholderView.classList.add('hidden');
+          uploadWrapper.classList.remove('hidden');
+        } else {
+          placeholderView.classList.remove('hidden');
+          uploadWrapper.classList.add('hidden');
+        }
+      }
+    }
+
+    // Start Webcam
+    async function startWebcam() {
+      if (!model) return;
+      try {
+        btnStartCam.disabled = true;
+        btnStartCam.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>Starting Camera...</span>`;
+        lucide.createIcons();
+
+        const flip = true;
+        webcam = new tmImage.Webcam(400, 400, flip);
+        await webcam.setup();
+        await webcam.play();
+        
+        isWebcamRunning = true;
+        const container = document.getElementById("webcam-container");
+        container.innerHTML = '';
+        container.appendChild(webcam.canvas);
+
+        placeholderView.classList.add('hidden');
+        webcamWrapper.classList.remove('hidden');
+        btnStartCam.classList.add('hidden');
+        btnStopCam.classList.remove('hidden');
+
+        animationFrameId = window.requestAnimationFrame(webcamLoop);
+      } catch (err) {
+        console.error("Webcam error:", err);
+        alert("Could not access webcam. Please allow camera permissions or use the Upload Photo option.");
+        btnStartCam.disabled = false;
+        btnStartCam.innerHTML = `<i data-lucide="play" class="w-4 h-4"></i><span>Start Camera Scanner</span>`;
+        lucide.createIcons();
+      }
+    }
+
+    // Stop Webcam
+    function stopWebcam() {
+      isWebcamRunning = false;
+      if (animationFrameId) {
+        window.cancelAnimationFrame(animationFrameId);
+      }
+      if (webcam) {
+        webcam.stop();
+      }
+      webcamWrapper.classList.add('hidden');
+      placeholderView.classList.remove('hidden');
+      
+      btnStopCam.classList.add('hidden');
+      btnStartCam.classList.remove('hidden');
+      btnStartCam.disabled = false;
+      btnStartCam.innerHTML = `<i data-lucide="play" class="w-4 h-4"></i><span>Start Camera Scanner</span>`;
+      lucide.createIcons();
+    }
+
+    // Continuous Webcam Prediction Loop
+    async function webcamLoop() {
+      if (!isWebcamRunning) return;
+      webcam.update();
+      await predict(webcam.canvas);
+      animationFrameId = window.requestAnimationFrame(webcamLoop);
+    }
+
+    // Handle Image Upload
+    function handleImageUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        previewImage.src = e.target.result;
+        placeholderView.classList.add('hidden');
+        uploadWrapper.classList.remove('hidden');
+
+        previewImage.onload = async function() {
+          await predict(previewImage);
+        };
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Run Prediction on Image or Video Frame
+    async function predict(imageSource) {
+      if (!model) return;
+      const predictions = await model.predict(imageSource);
+
+      let highestProb = 0;
+      let topClass = "";
+
+      predictions.forEach((pred, index) => {
+        const percentage = Math.round(pred.probability * 100);
+        const bar = document.getElementById(`prob-bar-${index}`);
+        const text = document.getElementById(`prob-text-${index}`);
+        
+        if (bar && text) {
+          bar.style.width = `${percentage}%`;
+          text.textContent = `${percentage}%`;
+        }
+
+        if (pred.probability > highestProb) {
+          highestProb = pred.probability;
+          topClass = pred.className;
+        }
+      });
+
+      updateVerdictUI(topClass, highestProb);
+    }
+
+    // Update Verdict Card Styling & Health Guidance
+    function updateVerdictUI(className, probability) {
+      const confidence = Math.round(probability * 100);
+      const lowerName = className.toLowerCase();
+
+      confidenceBadge.textContent = `${confidence}% Confidence`;
+
+      if (confidence < 55) {
+        // Low confidence / uncertain state
+        verdictCard.className = "glass-card rounded-3xl p-6 shadow-xl shadow-emerald-900/5 border-amber-200 transition-all duration-300";
+        verdictIconBox.className = "w-12 h-12 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center shrink-0";
+        verdictIconBox.innerHTML = `<i data-lucide="scan-search" class="w-6 h-6"></i>`;
+        verdictTitle.textContent = "Scanning / Unclear";
+        verdictTitle.className = "font-display text-2xl font-bold text-amber-700";
+        verdictSubtitle.textContent = `Leaning toward: ${className}`;
+        confidenceBadge.className = "px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800";
+        healthTipBox.className = "mt-5 p-4 rounded-2xl bg-amber-50/70 border border-amber-200/70 text-sm text-amber-900 leading-relaxed";
+        healthTipBox.innerHTML = `<strong>Tip:</strong> Move closer or improve lighting so the AI can clearly see the food item.`;
+      } else if (lowerName.includes('unhealthy') || lowerName.includes('junk') || lowerName.includes('bad')) {
+        // Unhealthy Food Detected
+        verdictCard.className = "glass-card rounded-3xl p-6 shadow-xl shadow-rose-900/5 border-rose-200 transition-all duration-300";
+        verdictIconBox.className = "w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center shrink-0";
+        verdictIconBox.innerHTML = `<i data-lucide="flame" class="w-6 h-6"></i>`;
+        verdictTitle.textContent = className;
+        verdictTitle.className = "font-display text-2xl font-bold text-rose-700";
+        verdictSubtitle.textContent = "High in processed fats, sugar, or sodium";
+        confidenceBadge.className = "px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-100 text-rose-800";
+        healthTipBox.className = "mt-5 p-4 rounded-2xl bg-rose-50/80 border border-rose-200/80 text-sm text-rose-900 leading-relaxed";
+        healthTipBox.innerHTML = `<strong>Eco-Health Advice:</strong> Enjoy in strict moderation. Pair with water and fiber-rich greens, or swap for fresh fruit or roasted nuts to avoid energy crashes and packaging waste.`;
+      } else {
+        // Healthy Food Detected
+        verdictCard.className = "glass-card rounded-3xl p-6 shadow-xl shadow-emerald-900/10 border-emerald-300 transition-all duration-300";
+        verdictIconBox.className = "w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0";
+        verdictIconBox.innerHTML = `<i data-lucide="salad" class="w-6 h-6"></i>`;
+        verdictTitle.textContent = className;
+        verdictTitle.className = "font-display text-2xl font-bold text-emerald-700";
+        verdictSubtitle.textContent = "Nutrient-dense & community eco-friendly";
+        confidenceBadge.className = "px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800";
+        healthTipBox.className = "mt-5 p-4 rounded-2xl bg-emerald-50/80 border border-emerald-200/80 text-sm text-emerald-900 leading-relaxed";
+        healthTipBox.innerHTML = `<strong>Great Choice!</strong> Whole, nutrient-rich foods fuel steady energy, support immunity, and help reduce single-use processed food packaging in our community.`;
+      }
+
+      lucide.createIcons();
+    }
+
+    // Initialize on load
+    window.addEventListener('DOMContentLoaded', initModel);
+  </script>
+</body>
+</html>
